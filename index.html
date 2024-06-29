@@ -27,6 +27,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 5px;
         }
         .muted {
             color: #b0b0b0;
@@ -35,33 +36,47 @@
             border-right: 1px solid #dee2e6;
             margin-right: 5px;
         }
+        .constant-width {
+            min-width: 75px;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
-        <input type="text" id="weekInput" class="form-control" placeholder="Select week" readonly>
+        <input type="text" id="weekInput" class="form-control" placeholder="בחר שבוע" readonly>
         <div id="calendar" class="calendar border p-3 bg-white rounded shadow">
             <div class="calendar-header mb-3">
+                <button id="prevYear" class="btn btn-sm btn-primary">&lt;&lt;</button>
+                <span id="yearDisplay" class="fw-bold constant-width"></span>
+                <button id="nextYear" class="btn btn-sm btn-primary">&gt;&gt;</button>
                 <button id="prevMonth" class="btn btn-sm btn-primary">&lt;</button>
-                <div id="monthYear" class="fw-bold"></div>
+                <span id="monthDisplay" class="fw-bold constant-width"></span>
                 <button id="nextMonth" class="btn btn-sm btn-primary">&gt;</button>
             </div>
             <div id="weeks">
                 <!-- Weeks will be generated here -->
             </div>
+            <button id="todayButton" class="btn btn-primary mt-3">היום</button>
         </div>
     </div>
 
     <script>
         const weekInput = document.getElementById('weekInput');
         const calendar = document.getElementById('calendar');
+        const prevYear = document.getElementById('prevYear');
+        const nextYear = document.getElementById('nextYear');
         const prevMonth = document.getElementById('prevMonth');
         const nextMonth = document.getElementById('nextMonth');
-        const monthYear = document.getElementById('monthYear');
+        const yearDisplay = document.getElementById('yearDisplay');
+        const monthDisplay = document.getElementById('monthDisplay');
         const weeksContainer = document.getElementById('weeks');
+        const todayButton = document.getElementById('todayButton');
         
         let currentYear = new Date().getFullYear();
         let currentMonth = new Date().getMonth();
+        
+        // Initial display of current year and month
+        yearDisplay.innerText = currentYear;
         
         weekInput.addEventListener('click', () => {
             calendar.style.display = 'block';
@@ -74,11 +89,24 @@
             }
         });
         
+        prevYear.addEventListener('click', () => {
+            currentYear--;
+            yearDisplay.innerText = currentYear;
+            createCalendar(currentYear, currentMonth);
+        });
+        
+        nextYear.addEventListener('click', () => {
+            currentYear++;
+            yearDisplay.innerText = currentYear;
+            createCalendar(currentYear, currentMonth);
+        });
+        
         prevMonth.addEventListener('click', () => {
             currentMonth--;
             if (currentMonth < 0) {
                 currentMonth = 11;
                 currentYear--;
+                yearDisplay.innerText = currentYear;
             }
             createCalendar(currentYear, currentMonth);
         });
@@ -88,16 +116,25 @@
             if (currentMonth > 11) {
                 currentMonth = 0;
                 currentYear++;
+                yearDisplay.innerText = currentYear;
             }
             createCalendar(currentYear, currentMonth);
         });
         
+        todayButton.addEventListener('click', () => {
+            const today = new Date();
+            currentYear = today.getFullYear();
+            currentMonth = today.getMonth();
+            yearDisplay.innerText = currentYear;
+            createCalendar(currentYear, currentMonth);
+        });
+
         const hebrewDays = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
         const hebrewMonths = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
         
         function createCalendar(year, month) {
             weeksContainer.innerHTML = '';
-            monthYear.innerText = `${hebrewMonths[month]} ${year}`;
+            monthDisplay.innerText = hebrewMonths[month];
         
             const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
